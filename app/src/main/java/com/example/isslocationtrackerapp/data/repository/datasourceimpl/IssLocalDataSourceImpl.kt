@@ -19,6 +19,10 @@ class IssLocalDataSourceImpl(
         return issLocationDataDao.getIssLocations()
     }
 
+    override suspend fun getIssLocationsFromDbAfterId(id: Int): List<IssLocationData> {
+        return issLocationDataDao.getIssLocationsAfterId(id)
+    }
+
     override suspend fun getIssPassengersFromDb(): IssPassengerData {
         return issPassengerDataDao.getIssPassengers().last()
     }

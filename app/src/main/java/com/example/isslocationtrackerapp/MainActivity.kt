@@ -39,14 +39,19 @@ class MainActivity : AppCompatActivity() {
             ActivityResultContracts.RequestMultiplePermissions()
         ) {
             Log.d(Constants.TAG, "onCreate: $it")
-            startGetCurrentIssLocation()
+            startQueryingIssData()
         }
 
         if (hasLocationPermission()) {
-            startGetCurrentIssLocation()
+            startQueryingIssData()
         } else {
             requestLocationPermission()
         }
+    }
+
+    private fun startQueryingIssData() {
+        startGetCurrentIssLocation()
+        startGetIssLocationsFromDB()
     }
 
     private fun startGetCurrentIssLocation() {
@@ -56,6 +61,17 @@ class MainActivity : AppCompatActivity() {
                 val issLocationData = it.issLocations.first()
                 val displayedText = "Current ISS Location: [Lat: ${issLocationData.issPosition.latitude}, Long: ${issLocationData.issPosition.longitude}]"
                 binding.issLocationText.text = displayedText
+            }
+        })
+    }
+
+    private fun startGetIssLocationsFromDB() {
+        viewModel.issLocationsFromDBEveryFiveSeconds.observe(this, {
+            Log.d(Constants.TAG, it.toString())
+            if (it is ResponseState.SuccessLocation) {
+                val issLocationData = it.issLocations.last()
+                val displayedText = "Current ISS Location DB: [Lat: ${issLocationData.issPosition.latitude}, Long: ${issLocationData.issPosition.longitude}]"
+                binding.issLocationDbText.text = displayedText
             }
         })
     }
@@ -79,8 +95,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestLocationPermission() {
         permissionLauncher.launch(arrayOf(
-            android.Manifest.permission.ACCESS_COARSE_LOCATION,
-            android.Manifest.permission.ACCESS_FINE_LOCATION
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
         ))
     }
 }

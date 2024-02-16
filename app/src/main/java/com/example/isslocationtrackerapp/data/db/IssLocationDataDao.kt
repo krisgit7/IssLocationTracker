@@ -15,4 +15,7 @@ interface IssLocationDataDao {
 
     @Query("SELECT * FROM iss_locations ORDER BY timestamp ASC")
     fun getIssLocations(): Flow<MutableList<IssLocationData>>
+
+    @Query("SELECT * FROM iss_locations WHERE id > :id ORDER BY timestamp ASC")
+    suspend fun getIssLocationsAfterId(id: Int): List<IssLocationData>
 }

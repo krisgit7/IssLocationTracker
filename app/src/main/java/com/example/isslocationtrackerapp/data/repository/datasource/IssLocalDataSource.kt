@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface IssLocalDataSource {
 
     fun getIssLocationsFromDb(): Flow<MutableList<IssLocationData>>
+    suspend fun getIssLocationsFromDbAfterId(id: Int): List<IssLocationData>
     suspend fun getIssPassengersFromDb(): IssPassengerData
     suspend fun saveIssLocationToDb(issLocationData: IssLocationData)
     suspend fun saveIssPassengerToDb(issPassengerData: IssPassengerData)

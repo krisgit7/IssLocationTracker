@@ -28,7 +28,7 @@ class MainViewModel(
         }
         .asLiveData()
 
-    val issLocationsFromDB: LiveData<ResponseState> = issDataRepository.getLocationsFromDb()
+    val issLocationsFromDBEveryFiveSeconds: LiveData<ResponseState> = issDataRepository.getLocationsFromDb(interval = 5_000L)
         .map { issLocations ->
             ResponseState.SuccessLocation(issLocations) as ResponseState
         }
