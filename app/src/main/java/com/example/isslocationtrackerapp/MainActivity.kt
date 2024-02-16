@@ -13,9 +13,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.isslocationtrackerapp.data.model.IssPassengerData
 import com.example.isslocationtrackerapp.data.state.ResponseState
 import com.example.isslocationtrackerapp.databinding.ActivityMainBinding
+import com.example.isslocationtrackerapp.presentation.IssLocationAdapter
 import com.example.isslocationtrackerapp.presentation.MainViewModel
 import com.example.isslocationtrackerapp.presentation.MainViewModelFactory
 import com.example.isslocationtrackerapp.util.Constants
@@ -30,6 +32,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var issLocationAdapter: IssLocationAdapter
 
     @Inject
     lateinit var mainViewModelFactory: MainViewModelFactory
@@ -56,6 +59,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             requestLocationPermission()
         }
+        initRecyclerView()
     }
 
     private fun startQueryingIssData() {
@@ -86,7 +90,6 @@ class MainActivity : AppCompatActivity() {
                 is ResponseState.Loading -> {
                     binding.issProgressbar.visibility = View.VISIBLE
                     binding.issLocationText.visibility = View.GONE
-                    binding.issLocationDbText.visibility = View.GONE
                 }
 
                 is ResponseState.Success -> {
@@ -132,7 +135,6 @@ class MainActivity : AppCompatActivity() {
         binding.issLocationText.text = displayedText
         binding.issProgressbar.visibility = View.GONE
         binding.issLocationText.visibility = View.VISIBLE
-        binding.issLocationDbText.visibility = View.VISIBLE
     }
 
     private fun getPassengers(issPassenger: IssPassengerData): String {
@@ -144,14 +146,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startGetIssLocationsFromDB() {
-        viewModel.issLocationsFromDBEveryFiveSeconds.observe(this, {
+        viewModel.issLocationsFromDBEveryFiveSeconds.observe(this) {
             Log.d(Constants.TAG, it.toString())
             if (it is ResponseState.Success) {
-                val issLocationData = it.issLocations.last()
-                val displayedText = "Current ISS Location DB: [Lat: ${issLocationData.issPosition.latitude}, Long: ${issLocationData.issPosition.longitude}]"
-                binding.issLocationDbText.text = displayedText
+                val issLocations = it.issLocations
+                issLocationAdapter.setList(issLocations)
+                issLocationAdapter.notifyDataSetChanged()
+                binding.issLocationRecyclerView.visibility = View.VISIBLE
             }
-        })
+        }
     }
 
     private fun hasLocationPermission(): Boolean {
@@ -176,5 +179,11 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION
         ))
+    }
+
+    private fun initRecyclerView() {
+        binding.issLocationRecyclerView.layoutManager = LinearLayoutManager(this)
+        issLocationAdapter = IssLocationAdapter()
+        binding.issLocationRecyclerView.adapter = issLocationAdapter
     }
 }
