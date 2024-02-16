@@ -1,5 +1,6 @@
 package com.example.isslocationtrackerapp.di
 
+import com.example.isslocationtrackerapp.data.location.LocationTracker
 import com.example.isslocationtrackerapp.data.repository.IssDataRepository
 import com.example.isslocationtrackerapp.presentation.MainViewModelFactory
 import dagger.Module
@@ -14,7 +15,7 @@ class ViewModelModule {
 
     @ActivityScoped
     @Provides
-    fun provideMainViewModelFactory(issDataRepository: IssDataRepository): MainViewModelFactory {
-        return MainViewModelFactory(issDataRepository)
+    fun provideMainViewModelFactory(issDataRepository: IssDataRepository, locationTracker: LocationTracker): MainViewModelFactory {
+        return MainViewModelFactory(issDataRepository, locationTracker)
     }
 }

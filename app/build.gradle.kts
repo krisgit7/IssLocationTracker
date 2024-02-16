@@ -57,7 +57,11 @@ dependencies {
     val lifecycle_version = "2.7.0"
     implementation("androidx.activity:activity-ktx:1.8.2")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
+
+    // Google Maps
     implementation("com.google.android.gms:play-services-location:21.1.0")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.maps.android:android-maps-utils:0.4")
 
     // Hilt
     val hilt_version = "2.48"

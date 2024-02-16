@@ -42,7 +42,27 @@ class IssDataRepositoryImpl(
     }
 
     override suspend fun getPassengers(): IssPassengerData {
-        TODO("Not yet implemented")
+        return issRemoteDataSource.getPassengers()
+    }
+
+    override fun getPassengerFlow(interval: Long): Flow<IssPassengerData> {
+        return getIssPassengerFlow()
+    }
+
+    private fun getIssPassengerFlow(interval: Long = 5_000L) = flow {
+        while (true) {
+            val issPassengers = issRemoteDataSource.getPassengers()
+            emit(issPassengers)
+            delay(interval)
+        }
+    }.retry { cause ->
+        val shouldRetry = cause is HttpException
+
+        if (shouldRetry) {
+            delay(interval)
+        }
+
+        shouldRetry
     }
 
     private fun getLatestIssLocationInDBEvery(interval: Long = 5_000L) = flow {

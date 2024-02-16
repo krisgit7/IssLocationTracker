@@ -12,4 +12,6 @@ interface IssDataRepository {
     fun getLocationsFromDb(interval: Long): Flow<List<IssLocationData>>
     suspend fun saveCurrentLocation(issLocationData: IssLocationData)
     suspend fun getPassengers(): IssPassengerData
+
+    fun getPassengerFlow(interval: Long): Flow<IssPassengerData>
 }
