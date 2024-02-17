@@ -7,17 +7,19 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.isslocationtrackerapp.data.state.ResponseState
 import com.example.isslocationtrackerapp.data.location.LocationTracker
-import com.example.isslocationtrackerapp.data.model.IssPassengerData
 import com.example.isslocationtrackerapp.data.repository.IssDataRepository
 import com.example.isslocationtrackerapp.data.state.ResponsePassengerDataState
+import com.example.isslocationtrackerapp.data.state.ResponseState
 import com.example.isslocationtrackerapp.util.Constants
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class MainViewModel(
     private val issDataRepository: IssDataRepository,
@@ -35,8 +37,16 @@ class MainViewModel(
         .onCompletion {
             Log.d(Constants.TAG, "getCurrentIssLocationAsLiveData: onCompletion")
         }
-        .catch { throwable ->
-            emit(ResponseState.Error(throwable.message ?: "Unknown Error") as ResponseState)
+        .retryWhen { cause, attempt ->
+            val shouldRetry = cause is HttpException
+
+            emit(ResponseState.Error(cause.message ?: "Unknown Error") as ResponseState)
+            if (shouldRetry) {
+                delay(5_000)
+            }
+
+            Log.d(Constants.TAG, "getCurrentIssLocationAsLiveData error cause: $cause, shouldRetry: $shouldRetry")
+            shouldRetry
         }
         .asLiveData()
 
@@ -59,22 +69,15 @@ class MainViewModel(
         .onCompletion {
             Log.d(Constants.TAG, "getPassengerFlow: onCompletion")
         }
-        .catch { throwable ->
-            emit(ResponsePassengerDataState.Error(throwable.message ?: "Unknown Error") as ResponsePassengerDataState)
+        .retryWhen { cause, attempt ->
+            Log.d(Constants.TAG, "getPassengerFlow error cause: $cause")
+            delay(5_000)
+            true
         }
         .asLiveData()
 
-    private val _issPassengerLiveData: MutableLiveData<IssPassengerData> = MutableLiveData<IssPassengerData>()
-    val issPassengerLiveData: LiveData<IssPassengerData> = _issPassengerLiveData
-
     private val _deviceLocation: MutableLiveData<Location> = MutableLiveData<Location>()
     val deviceLocation: LiveData<Location> = _deviceLocation
-
-    fun getIssPassengerData() {
-        viewModelScope.launch {
-            _issPassengerLiveData.value = issDataRepository.getPassengers()
-        }
-    }
 
     fun getDeviceLocation() {
         viewModelScope.launch {

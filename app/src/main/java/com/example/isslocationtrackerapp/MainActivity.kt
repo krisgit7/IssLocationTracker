@@ -15,6 +15,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.isslocationtrackerapp.data.model.IssPassengerData
+import com.example.isslocationtrackerapp.data.state.ResponsePassengerDataState
 import com.example.isslocationtrackerapp.data.state.ResponseState
 import com.example.isslocationtrackerapp.databinding.ActivityMainBinding
 import com.example.isslocationtrackerapp.presentation.IssLocationAdapter
@@ -77,10 +78,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getIssPassenger() {
-        viewModel.issPassengerLiveData.observe(this) {
-            issPassengerData = it
+        viewModel.issPassengerLiveDataFlow.observe(this) { responsePassengerDataState ->
+            Log.d(Constants.TAG, responsePassengerDataState.toString())
+            when (responsePassengerDataState) {
+                is ResponsePassengerDataState.Success -> {
+                    issPassengerData = responsePassengerDataState.issPassengerData
+                }
+
+                is ResponsePassengerDataState.Error -> {
+                    Toast.makeText(this, responsePassengerDataState.message, Toast.LENGTH_LONG).show()
+                }
+            }
         }
-        viewModel.getIssPassengerData()
     }
 
     private fun startGetCurrentIssLocation() {

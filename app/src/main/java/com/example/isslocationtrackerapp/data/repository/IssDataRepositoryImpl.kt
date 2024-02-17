@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retry
-import retrofit2.HttpException
 
 class IssDataRepositoryImpl(
     private val issLocalDataSource: IssLocalDataSource,
@@ -55,14 +54,6 @@ class IssDataRepositoryImpl(
             emit(issPassengers)
             delay(interval)
         }
-    }.retry { cause ->
-        val shouldRetry = cause is HttpException
-
-        if (shouldRetry) {
-            delay(interval)
-        }
-
-        shouldRetry
     }
 
     private fun getLatestIssLocationInDBEvery(interval: Long = 5_000L) = flow {
@@ -93,18 +84,13 @@ class IssDataRepositoryImpl(
 
     private fun getLatestIssLocationEveryFiveSeconds() = flow {
         while (true) {
+            Log.d("getLatestIssLocationEveryFiveSeconds", "start")
             val issLocations = getIssLocationFromAPI()
-            emit(issLocations)
+            if (issLocations.isNotEmpty()) {
+                emit(issLocations)
+            }
             delay(5_000L)
         }
-    }.retry { cause ->
-        val shouldRetry = cause is HttpException
-
-        if (shouldRetry) {
-            delay(5_000)
-        }
-
-        shouldRetry
     }
 
     private suspend fun getIssLocationFromAPI(): List<IssLocationData> {
