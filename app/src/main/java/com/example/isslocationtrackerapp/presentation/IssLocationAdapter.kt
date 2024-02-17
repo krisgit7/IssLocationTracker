@@ -1,5 +1,6 @@
 package com.example.isslocationtrackerapp.presentation
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -7,9 +8,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.isslocationtrackerapp.R
 import com.example.isslocationtrackerapp.data.model.IssLocationData
 import com.example.isslocationtrackerapp.databinding.IssLocationListItemBinding
+import com.example.isslocationtrackerapp.util.FormatUtils
 
 class IssLocationAdapter : RecyclerView.Adapter<IssLocationViewHolder>() {
-    private val issLocationDataLists = ArrayList<IssLocationData>()
+
+    private val issLocationDataLists = mutableListOf<IssLocationData>()
 
     fun setList(issLocations: List<IssLocationData>){
         issLocationDataLists.addAll(issLocations)
@@ -37,9 +40,10 @@ class IssLocationAdapter : RecyclerView.Adapter<IssLocationViewHolder>() {
 class IssLocationViewHolder(val binding: IssLocationListItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(issLocationData: IssLocationData){
-        val lat = issLocationData.issPosition.latitude
-        val long = issLocationData.issPosition.longitude
-        val latLong = "Lat: $lat Long: $long"
+        val lat = FormatUtils.getFormatted(issLocationData.issPosition.latitude.toDouble())
+        val long = FormatUtils.getFormatted(issLocationData.issPosition.longitude.toDouble())
+        val timeEst = FormatUtils.formatToDateString(issLocationData.timestamp)
+        val latLong = "Lat: $lat Long: $long / Time: $timeEst"
         binding.issLocationTextView.text = latLong
     }
 }

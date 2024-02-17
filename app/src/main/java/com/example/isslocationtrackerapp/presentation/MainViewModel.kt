@@ -51,7 +51,7 @@ class MainViewModel(
         .catch { throwable ->
             emit(ResponseState.Error(throwable.message ?: "Unknown Error") as ResponseState)
         }
-        .asLiveData()
+        .asLiveData(timeoutInMs = 7_000L)
 
     val issPassengerLiveDataFlow: LiveData<ResponsePassengerDataState> = issDataRepository.getPassengerFlow(interval = 5_000L)
         .map { issPassengerData ->

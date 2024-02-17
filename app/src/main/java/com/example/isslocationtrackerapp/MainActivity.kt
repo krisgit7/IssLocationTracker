@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
-    private lateinit var issLocationAdapter: IssLocationAdapter
+    private val issLocationAdapter = IssLocationAdapter()
 
     @Inject
     lateinit var mainViewModelFactory: MainViewModelFactory
@@ -152,7 +152,6 @@ class MainActivity : AppCompatActivity() {
                 val issLocations = it.issLocations
                 issLocationAdapter.setList(issLocations)
                 issLocationAdapter.notifyDataSetChanged()
-                binding.issLocationRecyclerView.visibility = View.VISIBLE
             }
         }
     }
@@ -183,7 +182,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun initRecyclerView() {
         binding.issLocationRecyclerView.layoutManager = LinearLayoutManager(this)
-        issLocationAdapter = IssLocationAdapter()
         binding.issLocationRecyclerView.adapter = issLocationAdapter
     }
 }
