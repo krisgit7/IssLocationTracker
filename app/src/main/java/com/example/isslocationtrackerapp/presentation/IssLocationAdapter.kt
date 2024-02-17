@@ -3,6 +3,8 @@ package com.example.isslocationtrackerapp.presentation
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.isslocationtrackerapp.R
 import com.example.isslocationtrackerapp.data.model.IssLocationData
@@ -11,11 +13,23 @@ import com.example.isslocationtrackerapp.util.FormatUtils
 
 class IssLocationAdapter : RecyclerView.Adapter<IssLocationAdapter.IssLocationViewHolder>() {
 
-    private val issLocationDataLists = mutableListOf<IssLocationData>()
+    private val callback = object : DiffUtil.ItemCallback<IssLocationData>() {
+        override fun areItemsTheSame(oldItem: IssLocationData, newItem: IssLocationData): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(
+            oldItem: IssLocationData,
+            newItem: IssLocationData,
+        ): Boolean {
+            return oldItem == newItem
+        }
+    }
+
+    private val differ = AsyncListDiffer(this, callback)
 
     fun setList(issLocations: List<IssLocationData>){
-        issLocationDataLists.clear()
-        issLocationDataLists.addAll(issLocations)
+        differ.submitList(issLocations)
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IssLocationViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -29,11 +43,11 @@ class IssLocationAdapter : RecyclerView.Adapter<IssLocationAdapter.IssLocationVi
     }
 
     override fun getItemCount(): Int {
-        return issLocationDataLists.size
+        return differ.currentList.size
     }
 
     override fun onBindViewHolder(holder: IssLocationViewHolder, position: Int) {
-        holder.bind(issLocationDataLists[position])
+        holder.bind(differ.currentList[position])
     }
 
     class IssLocationViewHolder(val binding: IssLocationListItemBinding) : RecyclerView.ViewHolder(binding.root) {

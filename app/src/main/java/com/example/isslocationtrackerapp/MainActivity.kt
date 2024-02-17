@@ -151,7 +151,6 @@ class MainActivity : AppCompatActivity() {
             if (it is ResponseState.Success) {
                 val issLocations = it.issLocations
                 issLocationAdapter.setList(issLocations)
-                issLocationAdapter.notifyDataSetChanged()
             }
         }
     }
