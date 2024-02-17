@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.example.isslocationtrackerapp.data.state.ResponseState
 import com.example.isslocationtrackerapp.data.location.LocationTracker
@@ -41,7 +40,7 @@ class MainViewModel(
         }
         .asLiveData()
 
-    val issLocationsFromDBEveryFiveSeconds: LiveData<ResponseState> = issDataRepository.getLocationsFromDb(interval = 5_000L)
+    val issLocationsFromDBLiveData: LiveData<ResponseState> = issDataRepository.getLocationsFromDb()
         .map { issLocations ->
             ResponseState.Success(issLocations) as ResponseState
         }
@@ -51,7 +50,7 @@ class MainViewModel(
         .catch { throwable ->
             emit(ResponseState.Error(throwable.message ?: "Unknown Error") as ResponseState)
         }
-        .asLiveData(timeoutInMs = 7_000L)
+        .asLiveData()
 
     val issPassengerLiveDataFlow: LiveData<ResponsePassengerDataState> = issDataRepository.getPassengerFlow(interval = 5_000L)
         .map { issPassengerData ->

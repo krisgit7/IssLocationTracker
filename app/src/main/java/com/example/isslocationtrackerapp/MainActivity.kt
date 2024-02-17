@@ -146,7 +146,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startGetIssLocationsFromDB() {
-        viewModel.issLocationsFromDBEveryFiveSeconds.observe(this) {
+        viewModel.issLocationsFromDBLiveData.observe(this) {
             Log.d(Constants.TAG, it.toString())
             if (it is ResponseState.Success) {
                 val issLocations = it.issLocations
@@ -181,7 +181,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initRecyclerView() {
-        binding.issLocationRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.issLocationRecyclerView.adapter = issLocationAdapter
+        binding.issLocationRecyclerView.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = issLocationAdapter
+        }
     }
 }
